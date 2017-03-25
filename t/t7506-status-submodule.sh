@@ -340,7 +340,7 @@ test_expect_success 'status with untracked file in nested submodule (porcelain)'
 test_expect_success 'status with untracked file in nested submodule (short)' '
 	git -C super status --short >output &&
 	diff output - <<-\EOF
-	 m sub1
+	 ? sub1
 	EOF
 '
 
