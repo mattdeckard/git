@@ -287,10 +287,9 @@ static const char *get_exact_ref_match(const struct object *o)
 	return NULL;
 }
 
-/* returns a static buffer */
-static const char *get_rev_name(const struct object *o)
+/* may return a constant string or use "buf" as scratch space */
+static const char *get_rev_name(const struct object *o, struct strbuf *buf)
 {
-	static char buffer[1024];
 	struct rev_name *n;
 	struct commit *c;
 
@@ -307,10 +306,9 @@ static const char *get_rev_name(const struct object *o)
 		int len = strlen(n->tip_name);
 		if (len > 2 && !strcmp(n->tip_name + len - 2, "^0"))
 			len -= 2;
-		snprintf(buffer, sizeof(buffer), "%.*s~%d", len, n->tip_name,
-				n->generation);
-
-		return buffer;
+		strbuf_reset(buf);
+		strbuf_addf(buf, "%.*s~%d", len, n->tip_name, n->generation);
+		return buf->buf;
 	}
 }
 
@@ -320,10 +318,11 @@ static void show_name(const struct object *obj,
 {
 	const char *name;
 	const struct object_id *oid = &obj->oid;
+	struct strbuf buf = STRBUF_INIT;
 
 	if (!name_only)
 		printf("%s ", caller_name ? caller_name : oid_to_hex(oid));
-	name = get_rev_name(obj);
+	name = get_rev_name(obj, &buf);
 	if (name)
 		printf("%s\n", name);
 	else if (allow_undefined)
@@ -332,6 +331,7 @@ static void show_name(const struct object *obj,
 		printf("%s\n", find_unique_abbrev(oid->hash, DEFAULT_ABBREV));
 	else
 		die("cannot describe '%s'", oid_to_hex(oid));
+	strbuf_release(&buf);
 }
 
 static char const * const name_rev_usage[] = {
@@ -343,6 +343,7 @@ static char const * const name_rev_usage[] = {
 
 static void name_rev_line(char *p, struct name_ref_data *data)
 {
+	struct strbuf buf = STRBUF_INIT;
 	int forty = 0;
 	char *p_start;
 	for (p_start = p; *p; p++) {
@@ -363,7 +364,7 @@ static void name_rev_line(char *p, struct name_ref_data *data)
 				struct object *o =
 					lookup_object(sha1);
 				if (o)
-					name = get_rev_name(o);
+					name = get_rev_name(o, &buf);
 			}
 			*(p+1) = c;
 
@@ -381,6 +382,8 @@ static void name_rev_line(char *p, struct name_ref_data *data)
 	/* flush */
 	if (p_start != p)
 		fwrite(p_start, p - p_start, 1, stdout);
+
+	strbuf_release(&buf);
 }
 
 int cmd_name_rev(int argc, const char **argv, const char *prefix)
