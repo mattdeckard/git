@@ -1,6 +1,8 @@
 #ifndef REVISION_H
 #define REVISION_H
 
+#include <limits.h>
+
 /*
  * The low 16 bits of the "flags" field shows whether
  * a commit is part of the path to the root for that

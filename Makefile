@@ -7,7 +7,7 @@
 # BREAK YOUR LOCAL DIFFS! show-diff and anything using it will likely randomly
 # break unless your underlying filesystem supports those sub-second times
 # (my ext3 doesn't).
-CFLAGS=-g -O3 -Wall
+CFLAGS=-g -O3 -Wall -I/usr/local/Cellar/openssl/1.0.2k/include
 
 CC=gcc
 
@@ -21,7 +21,7 @@ all: $(PROG)
 install: $(PROG)
 	install $(PROG) $(HOME)/bin/
 
-LIBS= -lssl -lz
+LIBS= -lssl -lcrypto -lz
 
 init-db: init-db.o
 

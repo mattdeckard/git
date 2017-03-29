@@ -4,6 +4,7 @@
  * Copyright (C) Linus Torvalds, 2005
  */
 #include "cache.h"
+#include <string.h>
 
 /*
  * Default to not allowing changes to the list of files. The
@@ -71,8 +72,8 @@ static void fill_stat_cache_info(struct cache_entry *ce, struct stat *st)
 	ce->ce_ctime.sec = htonl(st->st_ctime);
 	ce->ce_mtime.sec = htonl(st->st_mtime);
 #ifdef NSEC
-	ce->ce_ctime.nsec = htonl(st->st_ctim.tv_nsec);
-	ce->ce_mtime.nsec = htonl(st->st_mtim.tv_nsec);
+	ce->ce_ctime.nsec = htonl(st->st_ctimespec.tv_nsec);
+	ce->ce_mtime.nsec = htonl(st->st_mtimespec.tv_nsec);
 #endif
 	ce->ce_dev = htonl(st->st_dev);
 	ce->ce_ino = htonl(st->st_ino);
